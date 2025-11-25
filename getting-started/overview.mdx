@@ -1,0 +1,206 @@
+---
+title: 'Overview'
+description: 'Understanding forge-mcptools and its core concepts'
+---
+
+## What is forge-mcptools?
+
+forge-mcptools is a comprehensive platform designed to simplify the creation and management of **Model Context Protocol (MCP) connectors**. It provides developers with a complete toolkit for building, deploying, and managing connectors that interface with various data sources including databases, REST APIs, and other services.
+
+## Core Concepts
+
+### MCP Connectors
+
+A **connector** is a standalone service that provides a standardized interface to a specific data source. Each connector:
+
+- Runs as an independent service (usually on its own port)
+- Implements the MCP protocol for tool registration
+- Handles connection pooling and resource management
+- Provides tools for data access and manipulation
+
+### MCP Servers
+
+A **server** is an instance of a connector with specific configuration. Multiple servers can be created from a single connector:
+
+```
+PostgreSQL Connector (Port 8027)
+  ├── Server 1: production-db (192.168.1.10:5432)
+  ├── Server 2: staging-db (192.168.1.11:5432)
+  └── Server 3: dev-db (localhost:5432)
+```
+
+### MCP Tools
+
+**Tools** are the operations that a connector provides. For database connectors, typical tools include:
+
+- `list_tables()` - List all tables in the database
+- `get_table_schema(table_name)` - Get schema information
+- `execute_query(query, params)` - Execute SQL queries
+- `test_connection()` - Verify database connectivity
+
+## Platform Components
+
+### 1. Backend (FastAPI)
+
+The backend service provides:
+
+- RESTful API for all platform operations
+- User authentication and authorization
+- Connector registration and management
+- Server lifecycle management
+- Tool discovery and execution
+
+**Port**: 8000 (default)
+
+### 2. Frontend (React)
+
+The web dashboard offers:
+
+- Visual connector management
+- Server creation and configuration
+- Tool playground for testing
+- Real-time status monitoring
+- User management interface
+
+**Port**: 3000 (default)
+
+### 3. Connectors
+
+Each connector is an independent service that:
+
+- Listens on its own port (8027, 8028, etc.)
+- Registers available tools with the backend
+- Manages connections to the target data source
+- Handles tool execution requests
+
+## Workflow
+
+Here's how the components interact:
+
+<Steps>
+  <Step title="Connector Development">
+    Developer creates a new connector based on templates (PostgreSQL, MSSQL, etc.)
+  </Step>
+  
+  <Step title="Connector Deployment">
+    Connector is deployed as a Docker container or standalone service
+  </Step>
+  
+  <Step title="Connector Registration">
+    Connector registers with backend, advertising available tools
+  </Step>
+  
+  <Step title="Server Creation">
+    User creates server instances via dashboard with specific configurations
+  </Step>
+  
+  <Step title="Tool Execution">
+    User invokes tools through dashboard or API, backend routes to appropriate connector
+  </Step>
+</Steps>
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Async Operations" icon="bolt">
+    All connectors use async/await for non-blocking operations and high concurrency
+  </Card>
+  
+  <Card title="Connection Pooling" icon="layer-group">
+    Intelligent connection pooling with configurable limits and automatic cleanup
+  </Card>
+  
+  <Card title="Dynamic Configuration" icon="sliders">
+    Create multiple server instances with different configurations from a single connector
+  </Card>
+  
+  <Card title="Hot Reload" icon="arrows-rotate">
+    Development mode with hot reload for rapid connector development
+  </Card>
+  
+  <Card title="Type Safety" icon="shield-check">
+    Pydantic models for configuration validation and type safety
+  </Card>
+  
+  <Card title="Docker Ready" icon="docker">
+    All components containerized for easy deployment
+  </Card>
+</CardGroup>
+
+## Architecture Benefits
+
+### Scalability
+
+- Each connector runs independently
+- Easy horizontal scaling by adding more connector instances
+- Connection pooling prevents database overload
+
+### Flexibility
+
+- Add new connectors without modifying core platform
+- Support any data source (SQL, NoSQL, REST APIs, etc.)
+- Customize tools for specific use cases
+
+### Maintainability
+
+- Clear separation of concerns
+- Standardized connector interface
+- Independent deployment and updates
+
+## Data Flow
+
+```
+User Request (Dashboard/API)
+  ↓
+Backend (FastAPI) - Authentication & Routing
+  ↓
+Connector Service - Connection Management
+  ↓
+Data Source (Database/API)
+  ↓
+Response (JSON)
+  ↓
+User Interface
+```
+
+## Security Considerations
+
+<AccordionGroup>
+  <Accordion title="Authentication">
+    - JWT-based authentication for API access
+    - Session management for dashboard users
+    - Secure credential storage
+  </Accordion>
+  
+  <Accordion title="Authorization">
+    - Role-based access control (RBAC)
+    - Per-server access permissions
+    - Tool-level authorization
+  </Accordion>
+  
+  <Accordion title="Connection Security">
+    - Encrypted database connections (SSL/TLS)
+    - Credential encryption at rest
+    - Secure inter-service communication
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Check Prerequisites"
+    icon="list-check"
+    href="/getting-started/prerequisites"
+  >
+    Ensure you have all required tools installed
+  </Card>
+  <Card
+    title="Understand Architecture"
+    icon="sitemap"
+    href="/getting-started/architecture"
+  >
+    Deep dive into system architecture
+  </Card>
+</CardGroup>
+

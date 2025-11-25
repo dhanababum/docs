@@ -1,0 +1,178 @@
+---
+title: Introduction
+description: 'Welcome to forge-mcptools - Create MCP tools for databases, REST APIs, and more'
+---
+
+<img
+  className="block dark:hidden"
+  src="/images/hero-light.svg"
+  alt="Hero Light"
+/>
+<img
+  className="hidden dark:block"
+  src="/images/hero-dark.svg"
+  alt="Hero Dark"
+/>
+
+## What is forge-mcptools?
+
+forge-mcptools is a comprehensive platform for creating, deploying, and managing **Model Context Protocol (MCP) connectors** for databases and APIs. It provides a complete toolkit for building custom connectors that integrate with various data sources, enabling seamless access to your data through a unified interface.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card
+    title="Database Connectors"
+    icon="database"
+    href="/connectors/overview"
+  >
+    Build connectors for PostgreSQL, MSSQL, MySQL, and more with built-in connection pooling and async operations.
+  </Card>
+  <Card
+    title="Dashboard Management"
+    icon="chart-line"
+    href="/dashboard/overview"
+  >
+    Manage connectors, servers, and tools through an intuitive web dashboard.
+  </Card>
+  <Card
+    title="Docker Support"
+    icon="docker"
+    href="/deployment/docker-deployment"
+  >
+    Deploy connectors using Docker with hot-reload support for development.
+  </Card>
+  <Card
+    title="API Integration"
+    icon="code"
+    href="/api/backend-api"
+  >
+    RESTful API for programmatic access to all platform features.
+  </Card>
+</CardGroup>
+
+## Architecture
+
+forge-mcptools consists of three main components:
+
+1. **Backend (FastAPI)**: Core API server managing connectors, servers, and authentication
+2. **Frontend (React)**: Web dashboard for visual management
+3. **Connectors**: Standalone services that interface with specific data sources
+
+## Quick Start
+
+<Steps>
+  <Step title="Prerequisites">
+    Install Python 3.12+, Docker, UV package manager, and Node.js
+    
+    [View full prerequisites →](/getting-started/prerequisites)
+  </Step>
+  
+  <Step title="Local Setup">
+    Clone the repository and set up your development environment
+    
+    ```bash
+    git clone https://github.com/yourusername/forge-mcptools.git
+    cd forge-mcptools
+    ```
+    
+    [Complete setup guide →](/development/local-setup-with-docker)
+  </Step>
+  
+  <Step title="Create Your First Connector">
+    Follow our step-by-step guide to create a custom database connector
+    
+    [Create a connector →](/connectors/creating-connectors)
+  </Step>
+  
+  <Step title="Deploy">
+    Deploy your connectors using Docker Compose
+    
+    [Deployment guide →](/deployment/docker-deployment)
+  </Step>
+</Steps>
+
+## Available Connectors
+
+<AccordionGroup>
+  <Accordion title="PostgreSQL Connector" icon="elephant">
+    Full-featured PostgreSQL connector with async operations, connection pooling, and schema introspection.
+    
+    **Features:**
+    - AsyncPG-based connection pooling
+    - Table listing and schema inspection
+    - Parameterized query execution
+    - Transaction support
+    
+    [Learn more →](/connectors/postgres-connector)
+  </Accordion>
+  
+  <Accordion title="MSSQL/Azure SQL Connector" icon="microsoft">
+    Microsoft SQL Server and Azure SQL Database connector with ODBC Driver 18 support.
+    
+    **Features:**
+    - Azure SQL authentication
+    - Connection encryption
+    - Async operations with aioodbc
+    - Full schema introspection
+    
+    [Learn more →](/connectors/mssql-connector)
+  </Accordion>
+</AccordionGroup>
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Multi-Tenant Applications" icon="users">
+    Create isolated database connections for each tenant with dynamic connector instances.
+  </Card>
+  <Card title="Data Integration" icon="arrows-spin">
+    Integrate multiple data sources into a unified access layer.
+  </Card>
+  <Card title="API Gateway" icon="gateway">
+    Build a centralized gateway for database access with authentication and monitoring.
+  </Card>
+  <Card title="Development Tools" icon="code-branch">
+    Provide developers with easy access to database tools and query execution.
+  </Card>
+</CardGroup>
+
+## Community and Support
+
+<Card title="Get Help" icon="question" href="https://github.com/yourusername/forge-mcptools/issues">
+  Found a bug or have a question? Open an issue on GitHub
+</Card>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Understanding the Architecture"
+    icon="sitemap"
+    href="/getting-started/architecture"
+  >
+    Learn how forge-mcptools components work together
+  </Card>
+  <Card
+    title="Set Up Your Environment"
+    icon="gear"
+    href="/getting-started/prerequisites"
+  >
+    Get your development environment ready
+  </Card>
+  <Card
+    title="Build a Connector"
+    icon="plug"
+    href="/connectors/creating-connectors"
+  >
+    Create your first database connector
+  </Card>
+  <Card
+    title="Deploy to Production"
+    icon="rocket"
+    href="/deployment/docker-deployment"
+  >
+    Deploy your connectors using Docker
+  </Card>
+</CardGroup>
+

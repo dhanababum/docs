@@ -1,0 +1,412 @@
+---
+title: 'Prerequisites'
+description: 'Required tools and software for forge-mcptools development'
+---
+
+## System Requirements
+
+Before getting started with forge-mcptools, ensure your development environment meets these requirements.
+
+### Operating System
+
+<Tabs>
+  <Tab title="macOS">
+    - macOS 11 (Big Sur) or later
+    - Homebrew package manager (recommended)
+    - Xcode Command Line Tools
+  </Tab>
+  
+  <Tab title="Linux">
+    - Ubuntu 20.04+ / Debian 11+ / Fedora 35+
+    - systemd-based distribution
+    - Build essentials (gcc, make, etc.)
+  </Tab>
+  
+  <Tab title="Windows">
+    - Windows 10/11 (64-bit)
+    - WSL2 (Windows Subsystem for Linux) recommended
+    - Docker Desktop for Windows
+  </Tab>
+</Tabs>
+
+## Required Software
+
+### 1. Python 3.12+
+
+<CodeGroup>
+
+```bash macOS
+# Using Homebrew
+brew install python@3.12
+
+# Verify installation
+python3.12 --version
+```
+
+```bash Ubuntu/Debian
+# Add deadsnakes PPA
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt update
+
+# Install Python 3.12
+sudo apt install python3.12 python3.12-venv python3.12-dev
+
+# Verify installation
+python3.12 --version
+```
+
+```bash Windows (WSL2)
+# In WSL2 terminal
+sudo apt update
+sudo apt install software-properties-common
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt install python3.12 python3.12-venv python3.12-dev
+```
+
+</CodeGroup>
+
+<Check>**Expected output**: `Python 3.12.x`</Check>
+
+### 2. UV Package Manager
+
+UV is a fast Python package installer and resolver, required for managing dependencies.
+
+<CodeGroup>
+
+```bash macOS/Linux
+# Install UV
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Add to PATH (if not already)
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# Verify installation
+uv --version
+```
+
+```bash Windows (PowerShell)
+# Install UV
+irm https://astral.sh/uv/install.ps1 | iex
+
+# Verify installation
+uv --version
+```
+
+</CodeGroup>
+
+<Check>**Expected output**: `uv 0.x.x` or later</Check>
+
+### 3. Docker & Docker Compose
+
+Required for containerized development and deployment.
+
+<CodeGroup>
+
+```bash macOS
+# Install Docker Desktop
+# Download from: https://www.docker.com/products/docker-desktop
+
+# Or using Homebrew
+brew install --cask docker
+
+# Verify installation
+docker --version
+docker-compose --version
+```
+
+```bash Ubuntu/Debian
+# Remove old versions
+sudo apt remove docker docker-engine docker.io containerd runc
+
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Add user to docker group
+sudo usermod -aG docker $USER
+
+# Install Docker Compose
+sudo apt install docker-compose-plugin
+
+# Verify installation
+docker --version
+docker compose version
+```
+
+```bash Windows
+# Install Docker Desktop for Windows
+# Download from: https://www.docker.com/products/docker-desktop
+
+# Restart required after installation
+```
+
+</CodeGroup>
+
+<Check>
+  **Expected output**: 
+  - `Docker version 24.x.x` or later
+  - `Docker Compose version v2.x.x` or later
+</Check>
+
+### 4. Node.js & npm
+
+Required for the React frontend.
+
+<CodeGroup>
+
+```bash macOS
+# Using Homebrew
+brew install node@20
+
+# Verify installation
+node --version
+npm --version
+```
+
+```bash Ubuntu/Debian
+# Using NodeSource repository
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# Verify installation
+node --version
+npm --version
+```
+
+```bash Windows (WSL2)
+# Same as Ubuntu/Debian
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+```
+
+</CodeGroup>
+
+<Check>
+  **Expected output**:
+  - `Node.js v20.x.x` or later
+  - `npm 10.x.x` or later
+</Check>
+
+### 5. Git
+
+Version control for cloning the repository.
+
+<CodeGroup>
+
+```bash macOS
+# Usually pre-installed, or use Homebrew
+brew install git
+
+git --version
+```
+
+```bash Ubuntu/Debian
+sudo apt install git
+
+git --version
+```
+
+```bash Windows
+# Download Git for Windows
+# https://git-scm.com/download/win
+```
+
+</CodeGroup>
+
+<Check>**Expected output**: `git version 2.x.x` or later</Check>
+
+## Database-Specific Requirements
+
+Depending on which connectors you plan to use:
+
+### PostgreSQL Connector
+
+No additional requirements - uses Python packages only.
+
+### MSSQL Connector
+
+Requires Microsoft ODBC Driver 18 for SQL Server.
+
+<CodeGroup>
+
+```bash macOS
+# Install using Homebrew
+brew tap microsoft/mssql-release
+brew install msodbcsql18 mssql-tools18
+
+# Verify installation
+odbcinst -q -d -n "ODBC Driver 18 for SQL Server"
+```
+
+```bash Ubuntu/Debian
+# Add Microsoft repository
+curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+
+# Install driver
+sudo apt update
+sudo ACCEPT_EULA=Y apt install -y msodbcsql18
+
+# Verify installation
+odbcinst -q -d
+```
+
+```bash Windows
+# Download and install from:
+# https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server
+```
+
+</CodeGroup>
+
+<Info>
+  **Note**: ODBC drivers are included in Docker images, so manual installation is only needed for non-Docker development.
+</Info>
+
+## Optional Tools
+
+### Development Tools
+
+<CardGroup cols={2}>
+  <Card title="VS Code" icon="code">
+    Recommended IDE with Python, Docker, and React extensions
+    
+    [Download VS Code](https://code.visualstudio.com/)
+  </Card>
+  
+  <Card title="Postman" icon="square-terminal">
+    API testing tool for backend development
+    
+    [Download Postman](https://www.postman.com/downloads/)
+  </Card>
+  
+  <Card title="DBeaver" icon="database">
+    Universal database tool for testing connections
+    
+    [Download DBeaver](https://dbeaver.io/download/)
+  </Card>
+  
+  <Card title="Docker Desktop" icon="docker">
+    Visual Docker container management
+    
+    [Download Docker Desktop](https://www.docker.com/products/docker-desktop)
+  </Card>
+</CardGroup>
+
+## Verification Script
+
+Run this script to verify all prerequisites are installed:
+
+```bash verify-prerequisites.sh
+#!/bin/bash
+
+echo "🔍 Checking forge-mcptools prerequisites..."
+echo ""
+
+# Check Python
+if command -v python3.12 &> /dev/null; then
+    echo "✅ Python 3.12: $(python3.12 --version)"
+else
+    echo "❌ Python 3.12 not found"
+fi
+
+# Check UV
+if command -v uv &> /dev/null; then
+    echo "✅ UV: $(uv --version)"
+else
+    echo "❌ UV not found"
+fi
+
+# Check Docker
+if command -v docker &> /dev/null; then
+    echo "✅ Docker: $(docker --version)"
+else
+    echo "❌ Docker not found"
+fi
+
+# Check Docker Compose
+if docker compose version &> /dev/null; then
+    echo "✅ Docker Compose: $(docker compose version)"
+else
+    echo "❌ Docker Compose not found"
+fi
+
+# Check Node.js
+if command -v node &> /dev/null; then
+    echo "✅ Node.js: $(node --version)"
+else
+    echo "❌ Node.js not found"
+fi
+
+# Check npm
+if command -v npm &> /dev/null; then
+    echo "✅ npm: $(npm --version)"
+else
+    echo "❌ npm not found"
+fi
+
+# Check Git
+if command -v git &> /dev/null; then
+    echo "✅ Git: $(git --version)"
+else
+    echo "❌ Git not found"
+fi
+
+echo ""
+echo "🎉 Prerequisites check complete!"
+```
+
+Save this script and run:
+
+```bash
+chmod +x verify-prerequisites.sh
+./verify-prerequisites.sh
+```
+
+## Next Steps
+
+<Card
+  title="Set Up Your Environment"
+  icon="rocket"
+  href="/development/local-setup-with-docker"
+>
+  Once all prerequisites are installed, proceed to set up your local development environment
+</Card>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Python version issues">
+    If you have multiple Python versions, use `python3.12` explicitly:
+    
+    ```bash
+    python3.12 -m venv .venv
+    ```
+  </Accordion>
+  
+  <Accordion title="UV installation fails">
+    If curl fails, try manual installation:
+    
+    ```bash
+    pip install uv
+    ```
+  </Accordion>
+  
+  <Accordion title="Docker permission denied">
+    On Linux, add your user to the docker group:
+    
+    ```bash
+    sudo usermod -aG docker $USER
+    newgrp docker
+    ```
+  </Accordion>
+  
+  <Accordion title="ODBC Driver not found">
+    Verify installation path:
+    
+    ```bash
+    odbcinst -j  # Show ODBC configuration
+    find /opt -name "libmsodbcsql*"  # Find driver library
+    ```
+  </Accordion>
+</AccordionGroup>
+

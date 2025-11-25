@@ -1,0 +1,329 @@
+---
+title: 'Connector Overview'
+description: 'Understanding MCP connectors in forge-mcptools'
+---
+
+## What is a Connector?
+
+A **connector** is a standalone microservice that provides a standardized interface to interact with a specific type of data source (databases, APIs, etc.). Each connector implements the Model Context Protocol (MCP) to expose tools that can be invoked by users through the platform.
+
+## Key Characteristics
+
+<CardGroup cols={2}>
+  <Card title="Independent Service" icon="cube">
+    Each connector runs as its own service on a dedicated port
+  </Card>
+  
+  <Card title="MCP Protocol" icon="code">
+    Implements standard MCP for tool registration and execution
+  </Card>
+  
+  <Card title="Connection Pooling" icon="layer-group">
+    Manages connection pools for efficient resource usage
+  </Card>
+  
+  <Card title="Async Operations" icon="bolt">
+    Built on async/await for high concurrency
+  </Card>
+</CardGroup>
+
+## Available Connectors
+
+### PostgreSQL Connector
+
+Production-ready connector for PostgreSQL databases.
+
+**Features:**
+- AsyncPG-based connection pooling
+- Full schema introspection
+- Parameterized query execution
+- Transaction support
+- SSL/TLS encryption
+
+**Port**: 8027
+
+[Learn more →](/connectors/postgres-connector)
+
+### MSSQL Connector
+
+Microsoft SQL Server and Azure SQL Database connector.
+
+**Features:**
+- ODBC Driver 18 support
+- Azure SQL authentication
+- Async operations with aioodbc
+- Connection encryption
+- Schema introspection
+
+**Port**: 8028
+
+[Learn more →](/connectors/mssql-connector)
+
+## Connector Architecture
+
+```
+Connector Service (FastMCP)
+├── main.py              # Entry point, tool definitions
+├── schema.py            # Pydantic models for config
+├── db_manager.py        # Connection pooling logic
+├── Dockerfile.dev       # Container configuration
+├── pyproject.toml       # Dependencies (UV)
+└── media/               # Logos and assets
+```
+
+## Tools vs Templates
+
+### Tools
+
+**Tools** are callable operations that perform specific actions:
+
+```python
+@mcp.tool()
+async def list_tables() -> list[str]:
+    """List all tables in the database"""
+    return await pool_manager.get_tables(server_id, server_config)
+```
+
+**Examples:**
+- `list_tables()` - List database tables
+- `execute_query(query, params)` - Run SQL queries
+- `test_connection()` - Verify connectivity
+
+### Templates
+
+**Templates** are pre-configured tool patterns:
+
+```python
+@mcp.template(name="select_query", params_model=SelectQueryTemplate)
+async def select_query(params: SelectQueryTemplate) -> str:
+    """Execute SELECT with automatic LIMIT"""
+    # ...implementation
+```
+
+**Use Cases:**
+- Common query patterns
+- Reusable workflows
+- Parameter validation
+
+## Connection Lifecycle
+
+<Steps>
+  <Step title="Connector Startup">
+    Service starts and loads configuration
+  </Step>
+  
+  <Step title="Server Creation">
+    User creates a server instance with specific config (host, database, credentials)
+  </Step>
+  
+  <Step title="Pool Initialization">
+    Connection pool created for the server
+  </Step>
+  
+  <Step title="Tool Execution">
+    Tools use pooled connections for operations
+  </Step>
+  
+  <Step title="Pool Cleanup">
+    Idle connections automatically closed after TTL
+  </Step>
+  
+  <Step title="Server Destruction">
+    Pool closed when server is deleted
+  </Step>
+</Steps>
+
+## Configuration Model
+
+Each connector defines a Pydantic configuration model:
+
+```python
+class PostgresConfig(BaseModel):
+    host: Optional[str] = Field(default=None)
+    port: Optional[int] = Field(default=5432)
+    database: str = Field(description="Database name")
+    username: Optional[str] = Field(default=None)
+    password: Optional[str] = Field(default=None)
+    pool_size: int = Field(default=5)
+    max_overflow: int = Field(default=10)
+    additional_params: Optional[Dict[str, Any]] = None
+```
+
+**Benefits:**
+- Type validation
+- Auto-generated forms in dashboard
+- Default values
+- Field descriptions
+
+## Multi-Server Support
+
+A single connector can manage multiple server instances:
+
+```
+PostgreSQL Connector (:8027)
+├── prod-db-server
+│   └── Pool (host: 192.168.1.10, db: production)
+├── staging-db-server
+│   └── Pool (host: 192.168.1.11, db: staging)
+└── dev-db-server
+    └── Pool (host: localhost, db: development)
+```
+
+Each server maintains its own connection pool with independent configuration.
+
+## Performance Features
+
+### Connection Pooling
+
+```python
+PoolManager:
+├── Global Limit: 500 connections
+├── Per-Server Limit: 20 connections
+├── Idle TTL: 300 seconds
+└── LRU Eviction: Automatic cleanup
+```
+
+### Async Operations
+
+All database operations use async/await:
+
+```python
+async def execute_query(query: str, params: dict):
+    pool = await self.get_pool(server_id, server_config)
+    async with pool.acquire() as conn:
+        async with conn.cursor() as cursor:
+            await cursor.execute(query, params)
+            return await cursor.fetchall()
+```
+
+## Security Considerations
+
+<AccordionGroup>
+  <Accordion title="Credential Storage">
+    - Credentials stored encrypted in backend database
+    - Never logged or exposed in responses
+    - Passed securely to connector services
+  </Accordion>
+  
+  <Accordion title="Connection Encryption">
+    - SSL/TLS support for database connections
+    - Certificate validation options
+    - Encrypted data in transit
+  </Accordion>
+  
+  <Accordion title="Query Safety">
+    - Parameterized queries prevent SQL injection
+    - Input validation via Pydantic
+    - Query timeout limits
+  </Accordion>
+</AccordionGroup>
+
+## Connector Registry
+
+When a connector starts, it registers with the backend:
+
+```json
+{
+  "name": "postgresql",
+  "type": "database",
+  "endpoint": "http://localhost:8027",
+  "config_schema": {...},
+  "tools": [
+    {
+      "name": "list_tables",
+      "description": "List all tables",
+      "parameters": {}
+    }
+  ]
+}
+```
+
+## Development Workflow
+
+<Steps>
+  <Step title="Choose Template">
+    Start with existing connector (PostgreSQL/MSSQL) as template
+  </Step>
+  
+  <Step title="Create Structure">
+    Copy connector directory, update naming
+  </Step>
+  
+  <Step title="Define Schema">
+    Create configuration model in `schema.py`
+  </Step>
+  
+  <Step title="Implement Manager">
+    Write connection pooling logic in `db_manager.py`
+  </Step>
+  
+  <Step title="Add Tools">
+    Define tools in `main.py`
+  </Step>
+  
+  <Step title="Test Locally">
+    Run connector and test with dashboard
+  </Step>
+  
+  <Step title="Containerize">
+    Build Docker image for deployment
+  </Step>
+</Steps>
+
+## Best Practices
+
+<Card title="✅ DO" icon="check">
+- Use async/await throughout
+- Implement connection pooling
+- Add comprehensive error handling
+- Validate inputs with Pydantic
+- Include health check endpoint
+- Document tool parameters
+- Use parameterized queries
+</Card>
+
+<Card title="❌ DON'T" icon="xmark">
+- Block async operations with sync calls
+- Create connections without pooling
+- Hard-code credentials
+- Ignore connection limits
+- Skip input validation
+- Expose sensitive data in logs
+</Card>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Create a Connector"
+    icon="plus"
+    href="/connectors/creating-connectors"
+  >
+    Step-by-step guide to building your first connector
+  </Card>
+  
+  <Card
+    title="PostgreSQL Example"
+    icon="elephant"
+    href="/connectors/postgres-connector"
+  >
+    Detailed walkthrough of PostgreSQL connector
+  </Card>
+  
+  <Card
+    title="MSSQL Example"
+    icon="microsoft"
+    href="/connectors/mssql-connector"
+  >
+    Learn about MSSQL/Azure SQL connector
+  </Card>
+  
+  <Card
+    title="Architecture Deep Dive"
+    icon="sitemap"
+    href="/connectors/connector-architecture"
+  >
+    Advanced connector patterns and optimization
+  </Card>
+</CardGroup>
+

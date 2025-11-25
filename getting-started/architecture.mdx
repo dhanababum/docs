@@ -1,0 +1,455 @@
+---
+title: 'Architecture'
+description: 'System architecture and component interactions in forge-mcptools'
+---
+
+## System Overview
+
+forge-mcptools is built on a microservices architecture with three main layers:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         User Layer                           │
+│  ┌──────────────────┐            ┌──────────────────┐       │
+│  │  Web Dashboard   │            │   API Clients    │       │
+│  │  (React:3000)    │            │   (REST/SDK)     │       │
+│  └────────┬─────────┘            └────────┬─────────┘       │
+└───────────┼──────────────────────────────┼─────────────────┘
+            │                              │
+┌───────────┴──────────────────────────────┴─────────────────┐
+│                    Application Layer                         │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │         Backend API (FastAPI:8000)                  │    │
+│  │  • Authentication & Authorization                   │    │
+│  │  • Connector Registry                               │    │
+│  │  • Server Management                                │    │
+│  │  • Tool Orchestration                               │    │
+│  │  • PostgreSQL Database                              │    │
+│  └────────┬───────────────────────────────────────────┘    │
+└───────────┼──────────────────────────────────────────────┘
+            │
+┌───────────┴──────────────────────────────────────────────┐
+│                    Connector Layer                         │
+│  ┌──────────────┐  ┌──────────────┐  ┌─────────────┐     │
+│  │  PostgreSQL  │  │    MSSQL     │  │   Custom    │     │
+│  │  Connector   │  │  Connector   │  │ Connectors  │     │
+│  │  (:8027)     │  │  (:8028)     │  │  (:8029+)   │     │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬──────┘     │
+└─────────┼──────────────────┼──────────────────┼──────────┘
+          │                  │                  │
+┌─────────┴──────────────────┴──────────────────┴──────────┐
+│                       Data Layer                           │
+│  ┌──────────────┐  ┌──────────────┐  ┌─────────────┐     │
+│  │  PostgreSQL  │  │  SQL Server  │  │    MySQL    │     │
+│  │   Database   │  │  / Azure SQL │  │   Database  │     │
+│  └──────────────┘  └──────────────┘  └─────────────┘     │
+└────────────────────────────────────────────────────────────┘
+```
+
+## Core Components
+
+### 1. Backend API (FastAPI)
+
+**Purpose**: Central orchestration and management
+
+**Key Responsibilities:**
+- User authentication (JWT tokens)
+- Connector registration and discovery
+- Server lifecycle management
+- Tool routing and execution
+- Configuration storage
+
+**Technology Stack:**
+- **Framework**: FastAPI (Python)
+- **Database**: PostgreSQL
+- **ORM**: SQLAlchemy
+- **Auth**: FastAPI Users with JWT
+- **Migrations**: Alembic
+
+**Port**: 8000 (configurable)
+
+### 2. Frontend Dashboard (React)
+
+**Purpose**: User interface for management and monitoring
+
+**Key Features:**
+- Connector management interface
+- Server creation and configuration
+- Tool playground with parameter input
+- Real-time status monitoring
+- User account management
+
+**Technology Stack:**
+- **Framework**: React 18
+- **State Management**: React Query
+- **Styling**: Tailwind CSS
+- **HTTP Client**: Axios
+- **Build Tool**: Vite
+
+**Port**: 3000 (configurable)
+
+### 3. Connectors (FastMCP)
+
+**Purpose**: Data source adapters with MCP protocol
+
+**Common Features:**
+- Connection pooling
+- Async operations
+- Schema introspection
+- Query execution
+- Health monitoring
+
+**Technology Stack:**
+- **Framework**: FastMCP (MCP implementation)
+- **Server**: Uvicorn (ASGI)
+- **Validation**: Pydantic
+- **Package Manager**: UV
+
+**Ports**: 8027, 8028, 8029, ... (one per connector)
+
+## Data Flow
+
+### 1. Tool Execution Flow
+
+<Steps>
+  <Step title="User Request">
+    User invokes a tool via dashboard or API
+    
+    ```json
+    POST /api/v1/tools/execute
+    {
+      "server_id": "server-123",
+      "tool_name": "list_tables",
+      "parameters": {}
+    }
+    ```
+  </Step>
+  
+  <Step title="Authentication">
+    Backend validates JWT token and user permissions
+  </Step>
+  
+  <Step title="Server Lookup">
+    Backend retrieves server configuration and connector endpoint
+  </Step>
+  
+  <Step title="Connector Invocation">
+    Backend forwards request to connector service
+    
+    ```
+    POST http://localhost:8027/tools/list_tables
+    ```
+  </Step>
+  
+  <Step title="Data Access">
+    Connector executes operation on target data source
+  </Step>
+  
+  <Step title="Response">
+    Results flow back through backend to user
+  </Step>
+</Steps>
+
+### 2. Server Creation Flow
+
+```
+User → Dashboard → Backend API → Database
+                      ↓
+               Connector Registry
+                      ↓
+            Server Configuration Stored
+```
+
+## Component Communication
+
+### Backend ↔ Connectors
+
+**Protocol**: HTTP/REST
+
+**Authentication**: Internal API keys (optional)
+
+**Endpoints**:
+```
+GET  /health              - Health check
+POST /tools/{tool_name}   - Execute tool
+GET  /tools               - List available tools
+GET  /config             - Get connector metadata
+```
+
+### Frontend ↔ Backend
+
+**Protocol**: HTTP/REST with JSON
+
+**Authentication**: JWT Bearer tokens
+
+**Key Endpoints**:
+```
+POST /auth/login          - User authentication
+GET  /connectors          - List registered connectors
+POST /servers             - Create server instance
+GET  /servers/{id}/tools  - List server tools
+POST /tools/execute       - Execute tool
+```
+
+## Database Schema
+
+### Backend Database (PostgreSQL)
+
+```sql
+users
+├── id (UUID, PK)
+├── email (VARCHAR, UNIQUE)
+├── hashed_password (VARCHAR)
+├── is_active (BOOLEAN)
+└── is_superuser (BOOLEAN)
+
+connectors
+├── id (UUID, PK)
+├── name (VARCHAR)
+├── type (VARCHAR)
+├── endpoint (VARCHAR)
+├── status (VARCHAR)
+├── created_at (TIMESTAMP)
+└── config_schema (JSONB)
+
+servers
+├── id (UUID, PK)
+├── connector_id (UUID, FK)
+├── name (VARCHAR)
+├── configuration (JSONB)
+├── status (VARCHAR)
+├── created_by (UUID, FK → users.id)
+└── created_at (TIMESTAMP)
+
+tools
+├── id (UUID, PK)
+├── connector_id (UUID, FK)
+├── name (VARCHAR)
+├── description (TEXT)
+└── parameters_schema (JSONB)
+```
+
+## Connection Pooling Architecture
+
+Each connector implements intelligent connection pooling:
+
+```
+Connector Service
+  ↓
+PoolManager
+├── Global Connection Limit (500)
+├── Per-Server Pools
+│   ├── Server A: Pool (size: 5, max: 10)
+│   ├── Server B: Pool (size: 5, max: 10)
+│   └── Server C: Pool (size: 5, max: 10)
+├── LRU Eviction
+└── Idle Cleanup (TTL: 300s)
+```
+
+### Pool Configuration
+
+<CodeGroup>
+
+```python PostgreSQL
+# asyncpg pool
+pool = await asyncpg.create_pool(
+    host=config.host,
+    port=config.port,
+    database=config.database,
+    user=config.username,
+    password=config.password,
+    min_size=0,
+    max_size=5
+)
+```
+
+```python MSSQL
+# aioodbc pool
+pool = await aioodbc.create_pool(
+    dsn=connection_string,
+    minsize=0,
+    maxsize=5,
+    autocommit=True
+)
+```
+
+</CodeGroup>
+
+## Security Architecture
+
+### Authentication Flow
+
+```
+1. User Login
+   ↓
+2. Backend validates credentials
+   ↓
+3. Generate JWT (access + refresh tokens)
+   ↓
+4. Client stores tokens
+   ↓
+5. Subsequent requests include Bearer token
+   ↓
+6. Backend validates token on each request
+```
+
+### Authorization Layers
+
+<CardGroup cols={2}>
+  <Card title="User Level" icon="user">
+    - Active vs inactive users
+    - Superuser privileges
+    - Email verification
+  </Card>
+  
+  <Card title="Server Level" icon="server">
+    - Per-server access control
+    - Creator ownership
+    - Shared access (future)
+  </Card>
+  
+  <Card title="Tool Level" icon="wrench">
+    - Read-only tools
+    - Write/modify tools
+    - Admin-only tools
+  </Card>
+  
+  <Card title="Connector Level" icon="plug">
+    - SSL/TLS encryption
+    - Credential encryption
+    - Connection string security
+  </Card>
+</CardGroup>
+
+## Scalability Considerations
+
+### Horizontal Scaling
+
+<Tabs>
+  <Tab title="Backend">
+    - Stateless API design
+    - Session store in database
+    - Load balancer ready
+    - Multiple instances possible
+  </Tab>
+  
+  <Tab title="Connectors">
+    - Independent services
+    - Scale per connector type
+    - No shared state
+    - Auto-discovery via registration
+  </Tab>
+  
+  <Tab title="Database">
+    - PostgreSQL replication
+    - Read replicas for queries
+    - Connection pooling
+    - Query optimization
+  </Tab>
+</Tabs>
+
+### Performance Optimizations
+
+1. **Connection Pooling**: Reuse database connections
+2. **Async Operations**: Non-blocking I/O throughout
+3. **Query Caching**: Frequently accessed data cached
+4. **Lazy Loading**: Tools loaded on-demand
+5. **Response Streaming**: Large results streamed
+
+## Deployment Architectures
+
+### Development
+
+```
+Docker Compose
+├── Backend (hot reload)
+├── Frontend (Vite dev server)
+├── PostgreSQL (database)
+├── Connector 1
+└── Connector 2
+```
+
+### Production
+
+```
+Kubernetes/Docker Swarm
+├── Load Balancer
+├── Backend (3 replicas)
+├── Frontend (static files via CDN)
+├── PostgreSQL (managed service)
+└── Connectors (auto-scaled)
+```
+
+## Monitoring & Observability
+
+<CardGroup cols={2}>
+  <Card title="Health Checks" icon="heart-pulse">
+    Each service exposes `/health` endpoint
+  </Card>
+  
+  <Card title="Logging" icon="file-lines">
+    Structured logging with levels (DEBUG, INFO, ERROR)
+  </Card>
+  
+  <Card title="Metrics" icon="chart-line">
+    Connection pool stats, request latency, error rates
+  </Card>
+  
+  <Card title="Tracing" icon="diagram-project">
+    Request ID tracking across services
+  </Card>
+</CardGroup>
+
+## Technology Decisions
+
+### Why FastAPI?
+
+- Automatic OpenAPI documentation
+- Native async/await support
+- Type validation with Pydantic
+- High performance (Starlette/Uvicorn)
+- Easy testing
+
+### Why React?
+
+- Component-based architecture
+- Rich ecosystem
+- Excellent developer experience
+- Strong TypeScript support
+- Large community
+
+### Why PostgreSQL?
+
+- JSONB for flexible schemas
+- Excellent performance
+- ACID compliance
+- Rich feature set
+- Wide adoption
+
+### Why FastMCP?
+
+- MCP protocol implementation
+- Tool registration framework
+- Async-first design
+- Minimal overhead
+- Python ecosystem
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Build a Connector"
+    icon="plug"
+    href="/connectors/creating-connectors"
+  >
+    Learn to create your first connector
+  </Card>
+  <Card
+    title="Local Setup"
+    icon="laptop-code"
+    href="/development/local-setup-with-docker"
+  >
+    Set up your development environment
+  </Card>
+</CardGroup>
+

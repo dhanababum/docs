@@ -1,0 +1,103 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "forge-mcptools",
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#0D9373",
+    "light": "#07C983",
+    "dark": "#0D9373",
+    "anchors": {
+      "from": "#0D9373",
+      "to": "#07C983"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/yourusername/forge-mcptools"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Dashboard",
+    "url": "http://localhost:3000"
+  },
+  "tabs": [
+    {
+      "name": "API Reference",
+      "url": "api"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "Documentation",
+      "icon": "book-open-cover",
+      "url": "https://mintlify.com/docs"
+    },
+    {
+      "name": "Community",
+      "icon": "slack",
+      "url": "https://mintlify.com/community"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Get Started",
+      "pages": [
+        "introduction",
+        "getting-started/overview",
+        "getting-started/prerequisites",
+        "getting-started/architecture"
+      ]
+    },
+    {
+      "group": "Connector Development",
+      "pages": [
+        "connectors/overview",
+        "connectors/creating-connectors",
+        "connectors/postgres-connector",
+        "connectors/mssql-connector",
+        "connectors/connector-architecture"
+      ]
+    },
+    {
+      "group": "Local Development",
+      "pages": [
+        "development/local-setup-without-docker",
+        "development/local-setup-with-docker"
+      ]
+    },
+    {
+      "group": "Dashboard",
+      "pages": [
+        "dashboard/overview",
+        "dashboard/register-connectors",
+        "dashboard/create-servers",
+        "dashboard/create-tools"
+      ]
+    },
+    {
+      "group": "Deployment",
+      "pages": [
+        "deployment/docker-deployment",
+        "deployment/environment-variables",
+        "deployment/troubleshooting"
+      ]
+    },
+    {
+      "group": "API Documentation",
+      "pages": [
+        "api/backend-api",
+        "api/connector-api",
+        "api/authentication"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/yourusername/forge-mcptools"
+  }
+}
+

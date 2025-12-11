@@ -1,4 +1,4 @@
-# Mintlify Starter Kit
+# SuperMcp
 
 Use the starter kit to get your docs deployed and ready to customize.
 

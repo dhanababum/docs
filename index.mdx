@@ -1,97 +1,314 @@
 ---
 title: "Introduction"
-description: "Welcome to the new home for your documentation"
+description: "SuperMCP is a **comprehensive platform** for creating, deploying, and managing **Model Context Protocol (MCP) connectors** that bridge AI assistants with databases, APIs, and other data sources.
+Build powerful integrations that enable seamless data access through a unified, standardized interface."
 ---
 
-## Setting up
+# Welcome to SuperMCP
 
-Get your documentation site up and running in minutes.
+<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+  <iframe
+    className="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
+    src="https://www.youtube.com/embed/y44Pjc5p1Zg"
+    title="SuperMCP Introduction"
+    frameBorder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowFullScreen
+  />
+</div>
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+## 🎯 What is SuperMCP?
 
-## Make it yours
+SuperMCP is a **powerful platform** that enables you to create **multiple isolated MCP servers** using a **single standalone connector**. This unique architecture allows you to:
 
-Design a docs site that looks great and empowers your users.
+<CardGroup cols={2}>
+  <Card title="Multi-Server from One Connector" icon="clone">
+    Deploy one connector instance and create unlimited isolated MCP servers with different configurations
+  </Card>
+  
+  <Card title="Isolated Configurations" icon="lock">
+    Each MCP server has its own credentials, connection settings, and security tokens
+  </Card>
+  
+  <Card title="Resource Efficient" icon="gauge-high">
+    Share connection pools and resources across servers while maintaining isolation
+  </Card>
+  
+  <Card title="Simplified Management" icon="sliders">
+    Manage all your database connections from a single connector deployment
+  </Card>
+</CardGroup>
+
+### How It Works
+
+Instead of deploying multiple connector instances for different databases, SuperMCP lets you:
+
+1. **Deploy Once**: Set up a single PostgreSQL or MSSQL connector
+2. **Create Multiple Servers**: Configure as many isolated MCP servers as needed
+3. **Independent Access**: Each server operates independently with its own tokens and credentials
+4. **Centralized Control**: Manage everything from one unified dashboard
+
+This approach dramatically reduces infrastructure complexity while providing maximum flexibility for multi-tenant applications, development environments, and enterprise deployments.
+
+## 🏗️ Architecture Overview
+
+SuperMCP consists of three main components working together:
+
+<img
+  src="/images/supermcp-architecture.svg"
+  alt="SuperMCP System Architecture"
+  className="rounded-lg border border-gray-200 my-7 background"
+/>
+
+The architecture diagram above illustrates how the Dashboard and MCP Clients interact with the Application Layer, which then communicates with database connectors (PostgreSQL, MySQL) that manage multiple server instances connected to their respective databases.
+
+## 🚀 Key Features
+
+<CardGroup cols={2}>
+  <Card
+    title="Database Connectors"
+    icon="database"
+    href="/connectors/overview"
+  >
+    Production-ready connectors for PostgreSQL, MSSQL with connection pooling, async operations, and schema introspection
+  </Card>
+  <Card
+    title="Secure Data Layer"
+    icon="shield-check"
+  >
+    Securely connect to your data sources with encrypted credential storage and protected token-based authentication
+  </Card>
+  <Card
+    title="MCP Protocol"
+    icon="code-branch"
+    href="/introduction"
+  >
+    Full Model Context Protocol implementation for standardized tool registration and execution
+  </Card>
+  <Card
+    title="Visual Management"
+    icon="chart-line"
+    href="/development"
+  >
+    Intuitive React-based dashboard for managing connectors, servers, tokens, and configurations
+  </Card>
+  <Card
+    title="Docker Deployment"
+    icon="docker"
+  >
+    Fully containerized with Docker Compose, supporting development and production environments
+  </Card>
+  <Card
+    title="Connection Pooling"
+    icon="layer-group"
+  >
+    Intelligent connection pooling with LRU eviction, TTL management, and per-server limits
+  </Card>
+  <Card
+    title="API Integration"
+    icon="plug"
+    href="/api-reference/introduction"
+  >
+    RESTful API for programmatic access with FastAPI-Users authentication
+  </Card>
+  <Card
+    title="Multi-Server Support"
+    icon="server"
+  >
+    Single connector managing multiple server instances with independent configurations
+  </Card>
+  <Card
+    title="Schema Validation"
+    icon="shield-check"
+  >
+    Pydantic-based validation with auto-generated forms and type safety
+  </Card>
+  <Card
+    title="Custom Tools"
+    icon="wrench"
+  >
+    Create custom tools using templates defined by connectors for reusable workflows
+  </Card>
+  <Card
+    title="Custom Connectors"
+    icon="puzzle-piece"
+  >
+    Build custom connectors for any data source and share them with your teams
+  </Card>
+  <Card
+    title="Authentication & Authorization"
+    icon="key"
+  >
+    All servers are fully protected by token-based authentication with granular access control
+  </Card>
+</CardGroup>
+
+## 🎯 Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Multi-Tenant Applications" icon="users">
+    Create isolated database connections for each tenant with dynamic connector instances and secure credential management
+  </Card>
+  <Card title="Data Integration Hub" icon="arrows-spin">
+    Integrate multiple heterogeneous data sources into a unified access layer with standardized tooling
+  </Card>
+  <Card title="API Gateway" icon="gateway">
+    Build a centralized gateway for database access with authentication, rate limiting, and monitoring
+  </Card>
+  <Card title="Developer Tools" icon="code-branch">
+    Provide developers with easy access to database tools, query execution, and schema exploration
+  </Card>
+  <Card title="AI Data Access" icon="robot">
+    Enable AI assistants to query and interact with databases through standardized MCP protocol
+  </Card>
+  <Card title="DataOps Platform" icon="toolbox">
+    Create a comprehensive platform for database operations, migrations, and management
+  </Card>
+</CardGroup>
+
+
+## 📚 Core Concepts
+
+### Connectors
+Standalone microservices that implement MCP protocol to interface with specific data sources. Each connector runs independently on its own port.
+
+### Servers
+Instances of connectors with specific configurations (credentials, host, database). One connector can manage multiple servers.
+
+### Tools
+Callable operations exposed by connectors (e.g., `list_tables`, `execute_query`, `test_connection`).
+
+### Templates
+Pre-configured tool patterns with parameter validation for common workflows.
+
+### Connection Pools
+Managed connection pools with automatic cleanup, LRU eviction, and configurable limits.
+
+## 🔒 Security Features
+
+<AccordionGroup>
+  <Accordion title="Credential Management" icon="key">
+    - Encrypted storage in PostgreSQL
+    - Never logged or exposed in responses
+    - Secure transmission to connectors
+    - Support for environment variables
+  </Accordion>
+  
+  <Accordion title="Authentication & Authorization" icon="shield">
+    - FastAPI-Users authentication
+    - Cookie-based sessions
+    - JWT token support
+    - User role management
+  </Accordion>
+  
+  <Accordion title="Connection Security" icon="lock">
+    - SSL/TLS for database connections
+    - Certificate validation options
+    - Encrypted data in transit
+    - Secure connection strings
+  </Accordion>
+  
+  <Accordion title="Query Safety" icon="code">
+    - Parameterized queries prevent SQL injection
+    - Input validation via Pydantic
+    - Query timeout limits
+    - Permission-based access control
+  </Accordion>
+</AccordionGroup>
+
+## 📖 Documentation Structure
 
 <Columns cols={2}>
   <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
+    title="Getting Started"
+    icon="rocket"
+    href="/quickstart"
   >
-    Edit your docs locally and preview them in real time.
+    Quick setup guide to get SuperMCP running in minutes
   </Card>
   <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
+    title="Introduction"
+    icon="book-open"
+    href="/introduction"
   >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+    Detailed introduction to SuperMCP architecture and concepts
   </Card>
   <Card
-    title="API documentation"
-    icon="terminal"
+    title="Connectors Overview"
+    icon="plug"
+    href="/connectors/overview"
+  >
+    Learn about MCP connectors and how to build your own
+  </Card>
+  <Card
+    title="API Reference"
+    icon="code"
     href="/api-reference/introduction"
   >
-    Auto-generate API documentation from OpenAPI specifications.
+    Complete API documentation with examples
+  </Card>
+  <Card
+    title="Development Guide"
+    icon="laptop-code"
+    href="/development"
+  >
+    Local development setup and best practices
+  </Card>
+  <Card
+    title="AI Tools Integration"
+    icon="robot"
+    href="/ai-tools/cursor"
+  >
+    Integrate SuperMCP with Cursor, Claude Code, and Windsurf
   </Card>
 </Columns>
 
-## Create beautiful pages
+## 🎓 Learn More
 
-Everything you need to create world-class documentation.
-
-<Columns cols={2}>
+<CardGroup cols={3}>
   <Card
     title="Write with MDX"
     icon="pen-fancy"
     href="/essentials/markdown"
   >
-    Use MDX to style your docs pages.
+    Documentation authoring with MDX
   </Card>
   <Card
-    title="Code samples"
+    title="Code Examples"
     icon="code"
     href="/essentials/code"
   >
-    Add sample code to demonstrate how to use your product.
+    Add syntax-highlighted code samples
   </Card>
   <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
+    title="Navigation Setup"
+    icon="map"
+    href="/essentials/navigation"
   >
-    Display images and other media.
+    Organize your documentation
   </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+</CardGroup>
 
-## Need inspiration?
+## 🤝 Community & Support
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
+<Card title="Get Help" icon="question" href="https://github.com/yourusername/forge-mcptools/issues">
+  Found a bug or have a question? Open an issue on GitHub
 </Card>
+
+## 🌟 Why SuperMCP?
+
+**Production Ready**: Built with enterprise-grade tools like FastAPI, SQLModel, and PostgreSQL
+
+**Developer Friendly**: Beautiful dashboard, comprehensive docs, and extensive examples
+
+**Extensible**: Easy to add new connectors following provided patterns
+
+**Performant**: Async operations, connection pooling, and optimized queries
+
+**Secure**: Authentication, encryption, and query safety built-in
+
+**Modern Stack**: Latest versions of React, FastAPI, and Python 3.12+
+
+---
+
+Ready to get started? Follow our [Quick Start Guide](/quickstart) to have SuperMCP running in minutes!

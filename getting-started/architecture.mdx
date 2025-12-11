@@ -46,6 +46,80 @@ forge-mcptools is built on a microservices architecture with three main layers:
 └────────────────────────────────────────────────────────────┘
 ```
 
+## Detailed Architecture Diagram
+
+The following diagram illustrates the complete system architecture showing how MCP clients, the dashboard, connectors, and data layers interact:
+
+<img
+  src="/images/architecture-diagram.png"
+  alt="SuperMCP Architecture Diagram"
+  className="rounded-lg border border-gray-200"
+/>
+
+### Architecture Components
+
+<AccordionGroup>
+  <Accordion title="Dashboard & MCP Clients" icon="desktop">
+    **User Interfaces**
+    - **Dashboard**: Web-based UI for managing connectors and servers
+    - **MCP Client/AI Agents**: AI assistants like Claude, Cursor that connect via MCP protocol
+    
+    Both interfaces communicate with the Application Layer below.
+  </Accordion>
+  
+  <Accordion title="Application Layer" icon="layer-group">
+    **Central Orchestration**
+    - Routes requests between clients and connectors
+    - Manages authentication and authorization
+    - Handles server lifecycle and configuration
+    - Maintains connector registry
+  </Accordion>
+  
+  <Accordion title="Postgres Connector" icon="database">
+    **PostgreSQL Integration**
+    - **MCP PG Server 1, 2, ...**: Multiple server instances
+    - Each MCP server connects to its corresponding PostgreSQL database
+    - Supports multiple isolated database connections
+    - Independent connection pools per server
+  </Accordion>
+  
+  <Accordion title="MySQL Connector" icon="database">
+    **MySQL Integration**
+    - **MCP Msql Server 1, 2, ...**: Multiple server instances
+    - Each MCP server connects to its corresponding MySQL database
+    - Isolated connections for multi-tenant scenarios
+    - Per-server connection management
+  </Accordion>
+  
+  <Accordion title="Data Layer" icon="server">
+    **Target Databases**
+    - PostgreSQL databases (Pg server 1, 2, ...)
+    - MySQL databases (Msql server 1, 2, ...)
+    - Each connector can manage multiple database instances
+    - Secure, encrypted connections
+  </Accordion>
+</AccordionGroup>
+
+### Key Architectural Patterns
+
+<CardGroup cols={2}>
+  <Card title="Multi-Server Support" icon="servers">
+    Single connector managing multiple server instances with independent configurations
+  </Card>
+  
+  <Card title="Loose Coupling" icon="link-slash">
+    Connectors and application layer communicate via REST APIs for flexibility
+  </Card>
+  
+  <Card title="MCP Protocol" icon="code-branch">
+    Standardized Model Context Protocol for AI agent integration
+  </Card>
+  
+  <Card title="Scalability" icon="chart-line">
+    Each connector scales independently based on load
+  </Card>
+</CardGroup>
+
 ## Core Components
 
 ### 1. Backend API (FastAPI)
